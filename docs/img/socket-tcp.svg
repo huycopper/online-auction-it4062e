@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="396" viewBox="0 0 720 396" role="img" aria-label="Sơ đồ tuần tự: server gọi socket, bind, listen rồi chờ ở accept. Client gọi socket rồi connect, hai bên bắt tay TCP, accept trả về client_fd mới. Client gửi LOGIN, server nhận bằng recv rồi gửi OK_LOGIN.">
+<style>
+text { font-family: "Segoe UI", "Be Vietnam Pro", Arial, sans-serif; }
+.box { fill: #ffffff; stroke: #c7cfda; stroke-width: 1; }
+.box2 { fill: #eef1f5; stroke: #c7cfda; stroke-width: 1; }
+.box-acc { fill: #fdf1e3; stroke: #b45309; stroke-width: 1.2; }
+.life { stroke: #5b6675; stroke-width: 1; stroke-dasharray: 3 4; }
+.wire { stroke: #1b2430; stroke-width: 1.5; fill: none; }
+.head { fill: #1b2430; }
+.s-tb { fill: #1b2430; font-size: 13.5px; font-weight: 600; }
+.s-tm { fill: #5b6675; font-size: 11.5px; }
+.s-code { fill: #1b2430; font-family: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12px; }
+.s-code, .s-code-acc, .tmono { font-family: Consolas, "JetBrains Mono", monospace; }
+</style>
+<rect x="0" y="0" width="720" height="396" fill="#ffffff"/>
+          <defs>
+            <marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="head"/></marker>
+          </defs>
+          <rect x="110" y="12" width="180" height="36" rx="6" class="box2"/>
+          <text x="200" y="35" class="s-tb" text-anchor="middle">Server (C)</text>
+          <rect x="430" y="12" width="180" height="36" rx="6" class="box2"/>
+          <text x="520" y="35" class="s-tb" text-anchor="middle">Client (Python)</text>
+          <line x1="200" y1="48" x2="200" y2="390" class="life"/>
+          <line x1="520" y1="48" x2="520" y2="390" class="life"/>
+
+          <rect x="125" y="66" width="150" height="28" rx="4" class="box"/><text x="200" y="85" class="s-code" text-anchor="middle">socket()</text>
+          <rect x="125" y="104" width="150" height="28" rx="4" class="box"/><text x="200" y="123" class="s-code" text-anchor="middle">bind(:5500)</text>
+          <rect x="125" y="142" width="150" height="28" rx="4" class="box"/><text x="200" y="161" class="s-code" text-anchor="middle">listen()</text>
+          <rect x="125" y="180" width="150" height="56" rx="4" class="box"/><text x="200" y="202" class="s-code" text-anchor="middle">accept()</text><text x="200" y="222" class="s-tm" text-anchor="middle">đứng chờ…</text>
+          <rect x="125" y="252" width="150" height="28" rx="4" class="box-acc"/><text x="200" y="271" class="s-code" text-anchor="middle">→ client_fd mới</text>
+          <rect x="125" y="300" width="150" height="28" rx="4" class="box"/><text x="200" y="319" class="s-code" text-anchor="middle">recv()</text>
+          <rect x="125" y="348" width="150" height="28" rx="4" class="box"/><text x="200" y="367" class="s-code" text-anchor="middle">send(OK_LOGIN)</text>
+
+          <rect x="445" y="66" width="150" height="28" rx="4" class="box"/><text x="520" y="85" class="s-code" text-anchor="middle">socket()</text>
+          <rect x="445" y="194" width="150" height="28" rx="4" class="box"/><text x="520" y="213" class="s-code" text-anchor="middle">connect(:5500)</text>
+          <rect x="445" y="300" width="150" height="28" rx="4" class="box"/><text x="520" y="319" class="s-code" text-anchor="middle">send(LOGIN)</text>
+          <rect x="445" y="348" width="150" height="28" rx="4" class="box"/><text x="520" y="367" class="s-code" text-anchor="middle">recv()</text>
+
+          <line x1="445" y1="208" x2="277" y2="208" class="wire" marker-end="url(#m2)"/>
+          <text x="361" y="200" class="s-tm" text-anchor="middle">kết nối TCP</text>
+          <text x="361" y="224" class="s-tm" text-anchor="middle">(bắt tay 3 bước)</text>
+          <line x1="445" y1="314" x2="277" y2="314" class="wire" marker-end="url(#m2)"/>
+          <text x="361" y="306" class="s-code" text-anchor="middle">LOGIN|minh|123</text>
+          <line x1="275" y1="362" x2="443" y2="362" class="wire" marker-end="url(#m2)"/>
+          <text x="361" y="354" class="s-code" text-anchor="middle">OK_LOGIN|minh</text>
+        </svg>

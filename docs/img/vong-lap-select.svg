@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="270" viewBox="0 0 760 270" role="img" aria-label="Vòng lặp select bốn bước: gom danh sách socket, gọi select chờ tới khi có socket sẵn sàng hoặc hết timeout, xử lý socket sẵn sàng gồm accept recv send, kiểm tra đồng hồ rồi quay lại bước một.">
+<style>
+text { font-family: "Segoe UI", "Be Vietnam Pro", Arial, sans-serif; }
+.box { fill: #ffffff; stroke: #c7cfda; stroke-width: 1; }
+.box-acc { fill: #fdf1e3; stroke: #b45309; stroke-width: 1.2; }
+.wire { stroke: #1b2430; stroke-width: 1.5; fill: none; }
+.head { fill: #1b2430; }
+.s-t { fill: #1b2430; font-size: 12.5px; }
+.s-tb { fill: #1b2430; font-size: 13.5px; font-weight: 600; }
+.s-tm { fill: #5b6675; font-size: 11.5px; }
+.s-code, .s-code-acc, .tmono { font-family: Consolas, "JetBrains Mono", monospace; }
+</style>
+<rect x="0" y="0" width="760" height="270" fill="#ffffff"/>
+          <defs>
+            <marker id="m5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="head"/></marker>
+          </defs>
+          <rect x="40" y="20" width="300" height="72" rx="6" class="box"/>
+          <text x="56" y="44" class="s-tb">1. Gom danh sách socket</text>
+          <text x="56" y="64" class="s-t">listen_fd và mọi client_fd</text>
+          <text x="56" y="82" class="s-tm">client còn dữ liệu chờ gửi → tập ghi</text>
+
+          <rect x="420" y="20" width="300" height="72" rx="6" class="box-acc"/>
+          <text x="436" y="44" class="s-tb">2. Gọi select()</text>
+          <text x="436" y="64" class="s-t">ngủ tới khi có socket sẵn sàng</text>
+          <text x="436" y="82" class="s-tm">hoặc hết timeout = tới deadline gần nhất</text>
+
+          <rect x="420" y="150" width="300" height="104" rx="6" class="box"/>
+          <text x="436" y="174" class="s-tb">3. Xử lý socket sẵn sàng</text>
+          <text x="436" y="196" class="s-t">listen_fd → accept() client mới</text>
+          <text x="436" y="216" class="s-t">đọc được → recv(), cắt dòng, xử lý</text>
+          <text x="436" y="236" class="s-t">ghi được → send() phần còn lại</text>
+
+          <rect x="40" y="150" width="300" height="104" rx="6" class="box"/>
+          <text x="56" y="174" class="s-tb">4. Kiểm tra đồng hồ</text>
+          <text x="56" y="196" class="s-t">còn ≤ 30 s → EVT_TIME_WARNING</text>
+          <text x="56" y="216" class="s-t">hết giờ → SOLD hoặc UNSOLD</text>
+          <text x="56" y="236" class="s-t">đưa món tiếp theo lên</text>
+
+          <line x1="340" y1="56" x2="417" y2="56" class="wire" marker-end="url(#m5)"/>
+          <line x1="570" y1="92" x2="570" y2="147" class="wire" marker-end="url(#m5)"/>
+          <line x1="420" y1="202" x2="343" y2="202" class="wire" marker-end="url(#m5)"/>
+          <line x1="190" y1="150" x2="190" y2="95" class="wire" marker-end="url(#m5)"/>
+          <text x="380" y="128" class="s-tm" text-anchor="middle">lặp mãi</text>
+        </svg>

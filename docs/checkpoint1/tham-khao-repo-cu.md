@@ -105,8 +105,9 @@ lời thật: nhóm có xem để hiểu đề, nhưng tự thiết kế giao th
 
 ## 4. Việc nên làm trước Checkpoint 1
 
-- [ ] Slide 11: thêm lại mục "Open questions" với 3 câu ở mục 3.3, mỗi câu kèm các
-      phương án để thầy chọn. Sửa kịch bản cho khớp.
-- [ ] Kịch bản hỏi đáp: thêm câu "How is your design different?" (Huy trả lời) và
-      "How do you store money?" (Minh trả lời).
+- [x] ~~Slide 11: thêm lại mục "Open questions" với 3 câu ở mục 3.3.~~ Không làm:
+      ngày 19/10 nhóm trưởng quyết định bỏ phần câu hỏi mở khỏi bài trình bày. Các câu ở
+      mục 3.3 và `PROTOCOL.md` mục 14 hỏi thầy sau.
+- [x] ~~Kịch bản hỏi đáp: thêm câu "How is your design different?" và "How do you store
+      money?".~~ Không làm: nhóm trưởng quyết định bỏ qua ngày 19/10.
 - [ ] Khi nói slide 4 và 5, nhấn mạnh 3 điểm khác biệt ở mục 3.1.

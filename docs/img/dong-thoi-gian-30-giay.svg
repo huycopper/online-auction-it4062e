@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="224" viewBox="0 0 760 224" role="img" aria-label="Dòng thời gian một món đấu 120 giây. Ở giây 90 server gửi cảnh báo. Ở giây 108 Bình trả giá, deadline chuyển từ 120 sang 138 giây. Đến 138 giây món được bán cho Bình.">
+<style>
+text { font-family: "Segoe UI", "Be Vietnam Pro", Arial, sans-serif; }
+.win { fill: #fdf1e3; }
+.win2 { fill: none; stroke: #b45309; stroke-width: 1.4; stroke-dasharray: 5 3; }
+.axis { stroke: #1b2430; stroke-width: 1.4; }
+.tick { stroke: #1b2430; stroke-width: 1; }
+.dl-old { stroke: #5b6675; stroke-width: 1.4; stroke-dasharray: 5 4; }
+.dl-new { stroke: #b45309; stroke-width: 2.2; }
+.wire-acc-solid { stroke: #b45309; stroke-width: 1.6; fill: none; }
+.head-acc { fill: #b45309; }
+.dot-muted { fill: #5b6675; }
+.dot-acc { fill: #b45309; }
+.s-tb { fill: #1b2430; font-size: 13.5px; font-weight: 600; }
+.s-tm { fill: #5b6675; font-size: 11.5px; }
+.s-code { fill: #1b2430; font-family: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12px; }
+.s-code-acc { fill: #b45309; font-family: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12px; }
+.s-acc { fill: #b45309; font-size: 12px; font-weight: 600; }
+.s-code, .s-code-acc, .tmono { font-family: Consolas, "JetBrains Mono", monospace; }
+</style>
+<rect x="0" y="0" width="760" height="224" fill="#ffffff"/>
+          <defs>
+            <marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="head-acc"/></marker>
+          </defs>
+          <text x="40" y="24" class="s-tb">Món “Bình gốm” · thời gian đấu 120 s</text>
+
+          <rect x="454" y="60" width="138" height="90" class="win"/>
+          <text x="460" y="78" class="s-tm">30 giây cuối</text>
+          <rect x="537" y="96" width="138" height="54" class="win2"/>
+          <text x="669" y="112" class="s-acc" text-anchor="end">cửa sổ mới</text>
+
+          <line x1="592" y1="46" x2="592" y2="150" class="dl-old"/>
+          <text x="592" y="40" class="s-tm" text-anchor="middle">deadline cũ · 120 s</text>
+          <line x1="675" y1="30" x2="675" y2="150" class="dl-new"/>
+          <text x="675" y="24" class="s-acc" text-anchor="middle">deadline mới · 138 s</text>
+
+          <line x1="540" y1="130" x2="671" y2="130" class="wire-acc-solid" marker-end="url(#m1)"/>
+          <text x="600" y="145" class="s-acc" text-anchor="middle">+30 s</text>
+
+          <line x1="40" y1="150" x2="730" y2="150" class="axis"/>
+          <line x1="40" y1="150" x2="40" y2="156" class="tick"/><text x="40" y="172" class="s-tm" text-anchor="middle">0 s</text>
+          <line x1="178" y1="150" x2="178" y2="156" class="tick"/><text x="178" y="172" class="s-tm" text-anchor="middle">30 s</text>
+          <line x1="316" y1="150" x2="316" y2="156" class="tick"/><text x="316" y="172" class="s-tm" text-anchor="middle">60 s</text>
+          <line x1="454" y1="150" x2="454" y2="156" class="tick"/><text x="454" y="172" class="s-tm" text-anchor="middle">90 s</text>
+          <line x1="592" y1="150" x2="592" y2="156" class="tick"/><text x="592" y="172" class="s-tm" text-anchor="middle">120 s</text>
+          <line x1="730" y1="150" x2="730" y2="156" class="tick"/><text x="730" y="172" class="s-tm" text-anchor="middle">150 s</text>
+
+          <circle cx="454" cy="150" r="6" class="dot-muted"/>
+          <circle cx="537" cy="150" r="7" class="dot-acc"/>
+          <rect x="669" y="144" width="12" height="12" class="dot-acc"/>
+
+          <text x="454" y="196" class="s-code" text-anchor="middle">EVT_TIME_WARNING</text>
+          <text x="537" y="214" class="s-code-acc" text-anchor="middle">BID|1|850000 (còn 12 s)</text>
+          <text x="675" y="196" class="s-code" text-anchor="middle">SOLD → Bình</text>
+        </svg>
