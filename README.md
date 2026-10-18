@@ -5,21 +5,25 @@ lớp 171136). Server viết bằng C trên Linux dùng `select()`, client viế
 Python + PySide6. Hai bên nói chuyện bằng giao thức OAP do nhóm tự thiết kế trên
 TCP thô.
 
-| Thành viên | MSSV | Phụ trách |
-|---|---|---|
-| Đồng Đại Huy (nhóm trưởng) | 20235945 | Server lõi: vòng `select()`, framing, parser, tài khoản, lưu trữ, log, tìm kiếm và lịch sử. Ghép code, giữ tài liệu |
-| Hồ Ngọc Minh | 20235973 | Server nghiệp vụ: phòng, vật phẩm và hàng đợi, engine đấu giá và đồng hồ 30 giây |
-| Nguyễn Việt Hòa | 20235936 | Client PySide6: luồng mạng, các màn hình, đếm ngược |
+| Thành viên      | MSSV     | Phụ trách                                                                                                           |
+| --------------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| Đồng Đại Huy    | 20235945 | Server lõi: vòng `select()`, framing, parser, tài khoản, lưu trữ, log, tìm kiếm và lịch sử. Ghép code, giữ tài liệu |
+| Hồ Ngọc Minh    | 20235973 | Server nghiệp vụ: phòng và quyền trong phòng, hàng đợi, engine đấu giá và đồng hồ 30 giây                           |
+| Nguyễn Việt Hòa | 20235936 | Client PySide6: luồng mạng, các màn hình, đếm ngược. Phía server: vật phẩm (`item.c`) và chat                       |
+
+Lý do chia như vậy, thứ tự làm và cách bàn giao: [`docs/PHAN_CONG.md`](docs/PHAN_CONG.md).
 
 ---
 
 ## 1. Tài liệu phải đọc trước khi code
 
-| Tài liệu | Nội dung | Ai đọc kỹ phần nào |
-|---|---|---|
-| [`docs/PROTOCOL.md`](docs/PROTOCOL.md) | Giao thức OAP v1.0.1: mọi message, mã lỗi, luật đấu giá | Huy: mục 1–4 · Minh: mục 5–7 · Hòa: mục 2, 8 · **Cả nhóm: mục 0** |
-| [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) | Struct, file lưu trữ, mật khẩu, log, bất biến | Huy: toàn bộ · Minh: mục 2–3, 9 · Hòa: mục 10 |
-| File này | Cấu trúc repo, cách build, quy ước code, quy trình Git | Cả nhóm |
+| Tài liệu                                   | Nội dung                                                | Ai đọc kỹ phần nào                                                |
+| ------------------------------------------ | ------------------------------------------------------- | ----------------------------------------------------------------- |
+| [`docs/PROTOCOL.md`](docs/PROTOCOL.md)     | Giao thức OAP v1.0.1: mọi message, mã lỗi, luật đấu giá | Huy: mục 1–4 · Minh: mục 5–7 · Hòa: mục 2, 6, 8 · **Cả nhóm: mục 0** |
+| [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) | Struct, file lưu trữ, mật khẩu, log, bất biến           | Huy: toàn bộ · Minh: mục 2–3, 9 · Hòa: mục 10                     |
+| [`docs/KIEN_THUC_NEN.md`](docs/KIEN_THUC_NEN.md) | Giải thích nghiệp vụ đấu giá, socket TCP, framing, giao thức, `select()`, hai luồng ở client | Cả nhóm, đọc trước khi đọc hai tài liệu trên |
+| [`docs/KIEN_TRUC.md`](docs/KIEN_TRUC.md) | Sơ đồ kiến trúc, đường đi của một lượt BID, khối nào của ai | Cả nhóm |
+| File này                                   | Cấu trúc repo, cách build, quy ước code, quy trình Git  | Cả nhóm                                                           |
 
 **Hai tài liệu trong `docs/` là hợp đồng giữa các phần.** Code làm khác tài liệu
 là code sai. Muốn đổi thì sửa tài liệu trước, theo quy tắc ở mục 0 của
@@ -52,6 +56,12 @@ Project_OnlineAuction/
 ├── docs/
 │   ├── PROTOCOL.md           giao thức OAP
 │   ├── DATA_MODEL.md         dữ liệu và lưu trữ
+│   ├── DE_BAI.md             đề bài và tiêu chí chấm
+│   ├── PHAN_CONG.md          phân công, thứ tự làm, bàn giao
+│   ├── KIEN_THUC_NEN.md      giải thích kiến thức nền
+│   ├── KIEN_TRUC.md          sơ đồ kiến trúc
+│   ├── img/                  hình dùng trong tài liệu
+│   ├── checkpoint1/          slide và ghi chú Checkpoint 1
 │   └── Group_05.docx         phiếu đăng ký nhóm
 ├── server/                   C, Linux
 │   ├── Makefile
@@ -69,23 +79,24 @@ Project_OnlineAuction/
 Mỗi file có **một người chịu trách nhiệm**. Người khác muốn sửa thì báo người đó
 trước, để hai người không sửa cùng một file một lúc.
 
-| File | Nội dung | Người phụ trách |
-|---|---|---|
-| `server/include/model.h` | struct và hằng số theo `DATA_MODEL.md` | Huy (Minh review) |
-| `server/src/main.c` | đọc tham số, khởi động, tắt server | Huy |
-| `server/src/net.c` | vòng `select()`, accept, recv/send buffer, broadcast | Huy |
-| `server/src/proto.c` | cắt dòng, tách field, escape, ghép message | Huy |
-| `server/src/dispatch.c` | bảng lệnh → hàm xử lý, kiểm tra lỗi chung | Huy |
-| `server/src/auth.c` | `REGISTER`, `LOGIN`, `LOGOUT`, `crypt()` | Huy |
-| `server/src/storage.c` | đọc ghi các file trong `data/` | Huy |
-| `server/src/log.c` | ghi `server.log` | Huy |
-| `server/src/search.c` | `SEARCH_ITEMS`, `HISTORY`, `ROOM_RESULT` | Huy |
-| `server/src/room.c` | `CREATE_ROOM`, `JOIN_ROOM`, `LEAVE_ROOM`, `LIST_ROOMS` | Minh |
-| `server/src/item.c` | `ADD_ITEM`, `DEL_ITEM`, `LIST_ITEMS` | Minh |
-| `server/src/auction.c` | `START_AUCTION`, `BID`, `BUY_NOW`, đồng hồ 30 giây | Minh |
-| `client/auction_client/` | toàn bộ client | Hòa |
-| `tests/` | mỗi người viết test cho phần của mình | Cả nhóm |
-| `docs/` | tài liệu | Huy |
+| File                     | Nội dung                                               | Người phụ trách   |
+| ------------------------ | ------------------------------------------------------ | ----------------- |
+| `server/include/model.h` | struct và hằng số theo `DATA_MODEL.md`                 | Huy (Minh review) |
+| `server/src/main.c`      | đọc tham số, khởi động, tắt server                     | Huy               |
+| `server/src/net.c`       | vòng `select()`, accept, recv/send buffer, broadcast   | Huy               |
+| `server/src/proto.c`     | cắt dòng, tách field, escape, ghép message             | Huy               |
+| `server/src/dispatch.c`  | bảng lệnh → hàm xử lý, kiểm tra lỗi chung              | Huy               |
+| `server/src/auth.c`      | `REGISTER`, `LOGIN`, `LOGOUT`, `crypt()`               | Huy               |
+| `server/src/storage.c`   | đọc ghi các file trong `data/`                         | Huy               |
+| `server/src/log.c`       | ghi `server.log`                                       | Huy               |
+| `server/src/search.c`    | `SEARCH_ITEMS`, `HISTORY`, `ROOM_RESULT`               | Huy               |
+| `server/src/room.c`      | `CREATE_ROOM`, `JOIN_ROOM`, `LEAVE_ROOM`, `LIST_ROOMS` | Minh              |
+| `server/src/item.c`      | `ADD_ITEM`, `DEL_ITEM`, `LIST_ITEMS`                   | Hòa               |
+| `server/src/auction.c`   | `START_AUCTION`, `BID`, `BUY_NOW`, đồng hồ 30 giây     | Minh              |
+| `server/src/chat.c`      | `CHAT` (protocol v1.1)                                 | Hòa               |
+| `client/auction_client/` | toàn bộ client                                         | Hòa               |
+| `tests/`                 | mỗi người viết test cho phần của mình                  | Cả nhóm           |
+| `docs/`                  | tài liệu                                               | Huy               |
 
 ---
 
@@ -162,18 +173,18 @@ WSL2 tự chuyển tiếp cổng localhost.
 
 - **C11 + POSIX**, build bằng `Makefile` ở trên. **0 warning** trước khi tạo PR.
 - **Đặt tên:**
-  - hàm và biến dùng `snake_case`, hằng số và macro dùng `UPPER_CASE`;
-  - kiểu dữ liệu kết thúc bằng `_t` (`room_t`, `money_t`);
-  - hàm dùng ngoài file có tiền tố là tên module: `room_join()`, `auction_bid()`, `proto_escape()`;
-  - hàm chỉ dùng trong một file thì khai báo `static`;
-  - tên hàm và biến bằng tiếng Anh, comment bằng tiếng Việt hoặc tiếng Anh, viết ngắn.
+    - hàm và biến dùng `snake_case`, hằng số và macro dùng `UPPER_CASE`;
+    - kiểu dữ liệu kết thúc bằng `_t` (`room_t`, `money_t`);
+    - hàm dùng ngoài file có tiền tố là tên module: `room_join()`, `auction_bid()`, `proto_escape()`;
+    - hàm chỉ dùng trong một file thì khai báo `static`;
+    - tên hàm và biến bằng tiếng Anh, comment bằng tiếng Việt hoặc tiếng Anh, viết ngắn.
 - **Mỗi module là một cặp** `src/x.c` + `include/x.h`. Header có include guard:
-  ```c
-  #ifndef ROOM_H
-  #define ROOM_H
-  ...
-  #endif
-  ```
+    ```c
+    #ifndef ROOM_H
+    #define ROOM_H
+    ...
+    #endif
+    ```
 - **Biến toàn cục** (mảng `users`, `rooms`, `items`, `clients`) chỉ được định
   nghĩa ở một file. Các file khác dùng qua khai báo `extern` trong `model.h`.
 - **Kiểm tra mọi giá trị trả về** của system call (`socket`, `bind`, `accept`,
@@ -210,20 +221,20 @@ WSL2 tự chuyển tiếp cổng localhost.
 - Commit nhỏ, mỗi commit làm một việc.
 - Message theo dạng `<phạm vi>: <mô tả ngắn>`, viết tiếng Việt cũng được. Phạm vi là
   một trong `server`, `server/<module>`, `client`, `docs`, `tests`, `chore`.
-  ```
-  server/auction: từ chối BID đến sau deadline
-  client: màn hình phòng đấu giá
-  docs: PROTOCOL v1.1 thêm CHAT
-  ```
+    ```
+    server/auction: từ chối BID đến sau deadline
+    client: màn hình phòng đấu giá
+    docs: PROTOCOL v1.1 thêm CHAT
+    ```
 - **Không commit:** thư mục `data/`, `build/`, `.venv/`, file mật khẩu thật.
 
 ### Pull request
 
 1. Trước khi tạo PR, cập nhật nhánh theo `main` mới nhất:
-   ```bash
-   git fetch origin
-   git rebase origin/main
-   ```
+    ```bash
+    git fetch origin
+    git rebase origin/main
+    ```
 2. Build 0 warning, tự test theo mục 9.
 3. Tạo PR trên GitHub. Mô tả PR làm gì và đã test thế nào.
 4. **Huy review và merge.** PR của Huy thì người phụ trách phần bị ảnh hưởng review.
