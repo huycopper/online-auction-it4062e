@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Online Auction – Checkpoint 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* Khung xem: cuộn từng slide, hoặc trình chiếu từng slide một */
+  html, body { margin: 0; background: #0f1318; color: #e5e9ef; font-family: 'Be Vietnam Pro', Arial, sans-serif; }
+  .toolbar { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    padding: 10px 16px; background: #0f1318; border-bottom: 1px solid #2a323d; font-size: 14px; }
+  .toolbar .name { font-weight: 600; margin-right: auto; }
+  .toolbar button { font: inherit; padding: 5px 12px; border-radius: 6px; border: 1px solid #3a4452;
+    background: #19202a; color: #e5e9ef; cursor: pointer; }
+  .toolbar button:focus-visible { outline: 2px solid #f0a23b; outline-offset: 2px; }
+  .deck { display: grid; gap: 28px; padding: 24px 16px 48px; max-width: 1280px; margin: 0 auto; }
+  .item { display: grid; gap: 8px; }
+  .frame { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px;
+    box-shadow: 0 2px 14px rgba(0, 0, 0, .45); background: #ffffff; }
+  .notes { font-size: 15px; line-height: 1.6; color: #c9d3e0; background: #19202a; border-radius: 8px; padding: 10px 14px; }
+  .notes b { color: #f0a23b; font-weight: 600; }
+  body.hide-notes .notes { display: none; }
+
+  /* Trình chiếu */
+  body.present { overflow: hidden; background: #000000; }
+  body.present .toolbar { display: none; }
+  body.present .deck { position: fixed; inset: 0; max-width: none; padding: 0; display: grid; place-items: center; }
+  body.present .item { display: none; }
+  body.present .item.current { display: block; width: min(100vw, calc(100vh * 16 / 9)); }
+  body.present .notes { display: none; }
+  body.present .frame { border-radius: 0; box-shadow: none; }
+  .hint { position: fixed; right: 16px; bottom: 12px; font-size: 13px; color: #9aa5b4; display: none; }
+  body.present .hint { display: block; }
+
+  /* Mặc định của định dạng slide 1920 x 1080 */
+  section.slide { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; overflow: hidden;
+    transform-origin: 0 0; box-sizing: border-box; }
+  section.slide *, section.slide *::before, section.slide *::after { box-sizing: border-box; }
+  section.slide h1, section.slide h2, section.slide h3, section.slide p,
+  section.slide ul, section.slide ol, section.slide table { margin: 0; }
+  section.slide div { display: flex; flex-direction: column; }
+  section.slide ul, section.slide ol { padding-left: 1.2em; }
+  section.slide aside { display: none; }
+  section.slide table { border-collapse: collapse; width: 100%; }
+  section.slide th, section.slide td { padding: .35em .6em; border-bottom: 1px solid #C7CFDA; text-align: left; vertical-align: top; }
+  section.slide th { font-weight: 600; }
+  section.slide tr:last-child td { border-bottom: none; }
+  x-shape { display: block; flex: none; }
+  x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+  x-shape[kind="arrow-left"] { clip-path: polygon(100% 30%, 40% 30%, 40% 0, 0 50%, 40% 100%, 40% 70%, 100% 70%); }
+  x-shape[kind="arrow-up"] { clip-path: polygon(30% 100%, 30% 40%, 0 40%, 50% 0, 100% 40%, 70% 40%, 70% 100%); }
+  x-icon { display: inline-block; flex: none; background: currentColor;
+    -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
+  x-icon[name="Check"] { --icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%273%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M4%2012.5l5%205L20%206.5%27/%3E%3C/svg%3E"); }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <span class="name">Online Auction – Checkpoint 1</span>
+  <button type="button" id="btn-present">Trình chiếu (F)</button>
+  <button type="button" id="btn-notes" aria-pressed="true">Ghi chú người nói</button>
+</div>
+<div class="deck">
+<div class="frame" data-n="1">
+<section class="slide" id="cover" data-transition="fade" style="display:flex; flex-direction:column; justify-content:space-between; padding:128px; background:#1b2430">
+  <div style="display:flex; flex-direction:column; gap:24px">
+    <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:28px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#f0a23b">Checkpoint 1 · IT4062E Network Programming</p>
+    <h1 style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:120px; font-weight:700; line-height:1.05; color:#f5f7fa">Online Auction</h1>
+    <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:36px; line-height:1.3; color:#c9d3e0">A live auction house on raw TCP sockets</p>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:32px">
+    <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:24px; color:#c9d3e0">Group 05 · Class 171136 · Semester 20261</p>
+    <div style="display:flex; flex-direction:row; gap:96px">
+      <div style="display:flex; flex-direction:column; gap:4px">
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:28px; font-weight:600; color:#f5f7fa">Đồng Đại Huy</p>
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:24px; color:#c9d3e0">20235945</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px">
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:28px; font-weight:600; color:#f5f7fa">Hồ Ngọc Minh</p>
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:24px; color:#c9d3e0">20235973</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px">
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:28px; font-weight:600; color:#f5f7fa">Nguyễn Việt Hòa</p>
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:24px; color:#c9d3e0">20235936</p>
+      </div>
+    </div>
+  </div>
+  <aside>Good morning. We are Group 05. Our project is Topic 3, an online auction application. In ten minutes we will show the topic, our tools and architecture, the protocol we designed, and how we split the work.</aside>
+</section>
+</div>
+<div class="frame" data-n="2">
+<section class="slide" id="topic" data-transition="fade" style="background:#F5F7FA;color:#1B2430;font-family:'Be Vietnam Pro', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#1B2430">Topic and objectives</h2>
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:36px;font-weight:600;line-height:1.3;color:#1B2430">Topic 3: an online auction application</p>
+<p style="font-size:28px;line-height:1.4;color:#4A5568">Users open auction rooms and queue items for sale. Others join a room and bid on the item on the floor, one item at a time, until the queue is empty.</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:40px">
+<h3 style="font-size:36px;font-weight:600;line-height:1.2;color:#B45309">Real-time bidding</h3>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">Every accepted bid is pushed to everyone in the room at once.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:40px">
+<h3 style="font-size:36px;font-weight:600;line-height:1.2;color:#B45309">English auction</h3>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">A bid must beat the current price by at least 10,000 VND. Buy-now ends the item at once.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:40px">
+<h3 style="font-size:36px;font-weight:600;line-height:1.2;color:#B45309">Anti-sniping timer</h3>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">Everyone is warned at 30 seconds left. A late bid resets the clock to 30 seconds.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:40px">
+<h3 style="font-size:36px;font-weight:600;line-height:1.2;color:#B45309">Own protocol</h3>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">C server on Linux, raw TCP sockets, no socket libraries and no proxy server.</p>
+</div>
+</div>
+<aside>Our topic is Topic 3, an online auction. The model is a live auction house: a room has a queue of items, and only one item is on the floor at a time. When it closes, the server moves the next item up automatically. We have four objectives: real-time bidding, English auction rules with a 10,000 VND minimum raise, an anti-sniping timer, and our own protocol on raw sockets.</aside>
+</section>
+</div>
+<div class="frame" data-n="3">
+<section class="slide" id="features" data-transition="fade" style="background:#E9EEF5;color:#1B2430;font-family:'Be Vietnam Pro', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#1B2430">Planned features</h2>
+<div style="display:flex;flex-direction:row;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:24px;color:#1B2430;background:#FBFCFD;border:1px solid #C7CFDA">
+<tr><th style="width:80%">Feature</th><th style="width:20%;text-align:right">Points</th></tr>
+<tr><td>Stream handling</td><td style="text-align:right">1</td></tr>
+<tr><td>Socket I/O on the server</td><td style="text-align:right">2</td></tr>
+<tr><td>Registration and accounts</td><td style="text-align:right">2</td></tr>
+<tr><td>Login and sessions</td><td style="text-align:right">2</td></tr>
+<tr><td>Room access control</td><td style="text-align:right">1</td></tr>
+<tr><td>Create rooms</td><td style="text-align:right">1</td></tr>
+<tr><td>List rooms</td><td style="text-align:right">1</td></tr>
+<tr><td>Activity logging</td><td style="text-align:right">1</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:24px;color:#1B2430;background:#FBFCFD;border:1px solid #C7CFDA">
+<tr><th style="width:80%">Feature</th><th style="width:20%;text-align:right">Points</th></tr>
+<tr><td>Create items</td><td style="text-align:right">2</td></tr>
+<tr><td>Delete items</td><td style="text-align:right">1</td></tr>
+<tr><td>Join rooms</td><td style="text-align:right">2</td></tr>
+<tr><td>Bidding</td><td style="text-align:right">2</td></tr>
+<tr><td>Buy now</td><td style="text-align:right">1</td></tr>
+<tr><td>30-second alert and timer reset</td><td style="text-align:right">2</td></tr>
+<tr><td>Graphical user interface</td><td style="text-align:right">3</td></tr>
+<tr><td>Advanced: search, history, chat, auto-bid</td><td style="text-align:right">2–10</td></tr>
+</table>
+</div>
+</div>
+<p style="font-size:28px;line-height:1.4;color:#4A5568"><b>24 points</b> of core features, plus 2–10 points for advanced features.</p>
+<aside>This is what we plan to build, mapped to the grading table for Topic 3. The core features are worth 24 points. On top of that we plan advanced features: item search, auction history with statistics, chat in the room and automatic bidding.</aside>
+</section>
+</div>
+<div class="frame" data-n="4">
+<section class="slide" id="environment" data-transition="fade" style="background:#F5F7FA;color:#1B2430;font-family:'Be Vietnam Pro', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#1B2430">Development environment</h2>
+<table style="font-size:28px;color:#1B2430;background:#FBFCFD;border:1px solid #C7CFDA">
+<tr><th style="width:22%">Part</th><th style="width:32%">Choice</th><th style="width:46%">Notes</th></tr>
+<tr><td>Server</td><td>C11, GCC, Make</td><td style="color:#4A5568">Ubuntu 24.04, strict warnings on</td></tr>
+<tr><td>Server I/O</td><td>POSIX sockets + select()</td><td style="color:#4A5568">One process, one thread</td></tr>
+<tr><td>Client GUI</td><td>Python 3 + PySide6</td><td style="color:#4A5568">Qt Widgets on Windows, Linux, macOS</td></tr>
+<tr><td>Client network</td><td>socket module + QThread</td><td style="color:#4A5568">No QTcpSocket, no WebSocket</td></tr>
+<tr><td>Protocol</td><td>OAP v1.0, our own</td><td style="color:#4A5568">UTF-8 text lines over TCP</td></tr>
+<tr><td>Storage</td><td>Text files</td><td style="color:#4A5568">Loaded at start, saved on change</td></tr>
+<tr><td>Testing</td><td>nc, Wireshark, tshark</td><td style="color:#4A5568">Test the server before the client exists</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#4A5568">Meets the Lec00 rules: C server on Linux · free choice of client language · raw sockets only · no proxy server</p>
+<aside>The server is written in C on Ubuntu with GCC and Make. It uses POSIX sockets and select(), in one process and one thread. The client is Python with PySide6. For the network part the client uses only Python’s standard socket module plus a background thread, so we follow the raw socket rule from the first lecture. Storage is plain text files, one record per line. The server loads them into memory at start and writes them back when data changes.</aside>
+</section>
+</div>
+<div class="frame" data-n="5">
+<section class="slide" id="architecture" data-transition="fade" style="background:#E9EEF5;color:#1B2430;font-family:'Be Vietnam Pro', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:32px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#1B2430">System architecture</h2>
+<div style="flex:1;display:flex;flex-direction:row;gap:24px">
+<div style="width:460px;display:flex;flex-direction:column;gap:16px;background:#DCE6F4;border:2px solid #9FB4D3;border-radius:16px;padding:32px">
+<div style="display:flex;flex-direction:row;gap:16px;align-items:baseline">
+<h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#1B2430">Client × N</h3>
+<p style="font-size:24px;color:#4A5568">Python · PySide6</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:12px;padding:20px">
+<p style="font-size:28px;font-weight:600;color:#1B2430">GUI thread</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">Login, lobby, auction room, owner panel. QTimer counts down from the deadline.</p>
+</div>
+<div style="display:flex;flex-direction:row;gap:16px;align-items:center">
+<x-shape kind="arrow-up" style="background:#1B2430;width:28px;height:48px"></x-shape>
+<p style="font-size:24px;color:#1B2430">Qt signal</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:12px;padding:20px">
+<p style="font-size:28px;font-weight:600;color:#1B2430">Network thread</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">Waits in recv(), cuts lines at \n, sorts OK, ERR and EVT messages.</p>
+</div>
+<p style="font-size:24px;color:#4A5568">Standard socket module only</p>
+</div>
+<div style="width:260px;display:flex;flex-direction:column;justify-content:center;gap:40px">
+<p style="font-size:24px;font-weight:600;line-height:1.3;text-align:center;color:#1B2430">TCP, one connection per client</p>
+<div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+<p style="font-size:24px;font-weight:600;color:#1B2430">Request</p>
+<x-shape kind="arrow-right" style="background:#1B2430;width:120px;height:48px"></x-shape>
+<p style="font-size:24px;font-family:'JetBrains Mono', 'Courier New', monospace;color:#1B2430">BID|1|510000</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+<p style="font-size:24px;font-weight:600;color:#1B2430">Response</p>
+<x-shape kind="arrow-left" style="background:#1B2430;width:120px;height:48px"></x-shape>
+<p style="font-size:24px;font-family:'JetBrains Mono', 'Courier New', monospace;color:#1B2430">OK_BID|1|510000</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+<p style="font-size:24px;font-weight:600;color:#B45309">Event, pushed</p>
+<x-shape kind="arrow-left" style="background:#B45309;width:120px;height:48px"></x-shape>
+<p style="font-size:24px;font-family:'JetBrains Mono', 'Courier New', monospace;color:#B45309">EVT_NEW_BID</p>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#E1EBD9;border:2px solid #A7BB98;border-radius:16px;padding:32px">
+<div style="display:flex;flex-direction:row;gap:16px;align-items:baseline">
+<h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#1B2430">Server</h3>
+<p style="font-size:24px;color:#4A5568">C on Linux · one process, one thread</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:12px;padding:20px">
+<p style="font-size:28px;font-weight:600;color:#1B2430">select() loop</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">Wakes when a socket can be read or written, or at the next auction deadline.</p>
+</div>
+<div style="display:flex;flex-direction:row;gap:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:12px;padding:20px">
+<p style="font-size:28px;font-weight:600;color:#1B2430">Client buffers</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">recv: cut at \n. send: finish partial sends later.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:12px;padding:20px">
+<p style="font-size:28px;font-weight:600;color:#1B2430">Parser, dispatcher</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">Split on |, unescape, call the right module.</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:12px;padding:20px">
+<p style="font-size:28px;font-weight:600;color:#1B2430">Modules</p>
+<div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:12px">
+<p style="font-size:24px;color:#1B2430;background:#EEF1F5;padding:6px 16px;border-radius:999px">Accounts</p>
+<p style="font-size:24px;color:#1B2430;background:#EEF1F5;padding:6px 16px;border-radius:999px">Rooms</p>
+<p style="font-size:24px;color:#1B2430;background:#EEF1F5;padding:6px 16px;border-radius:999px">Items, queue</p>
+<p style="font-size:24px;font-weight:600;color:#FFF8EF;background:#B45309;padding:6px 16px;border-radius:999px">Auction, timer</p>
+<p style="font-size:24px;color:#1B2430;background:#EEF1F5;padding:6px 16px;border-radius:999px">Search, history</p>
+<p style="font-size:24px;color:#1B2430;background:#EEF1F5;padding:6px 16px;border-radius:999px">Files, log</p>
+</div>
+</div>
+</div>
+</div>
+<aside>Each client keeps one TCP connection open for the whole session. Inside the client there are two threads: the GUI thread, and a network thread that waits in recv(). The network thread is needed because the server can push events at any time. On the server there is only one thread. The select() loop wakes up when a socket is ready, or when the nearest auction deadline arrives, so we do not need a separate timer thread. Every client has its own receive and send buffer, because TCP is a byte stream.</aside>
+</section>
+</div>
+<div class="frame" data-n="6">
+<section class="slide" id="bidflow" data-transition="fade" style="background:#F5F7FA;color:#1B2430;font-family:'Be Vietnam Pro', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#1B2430">One bid, end to end</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:24px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:32px">
+<p style="font-size:64px;font-weight:700;line-height:1.1;color:#B45309">1</p>
+<p style="font-size:28px;font-weight:600;color:#1B2430">Client</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">The GUI thread sends BID|1|510000 and a newline on the socket.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:32px">
+<p style="font-size:64px;font-weight:700;line-height:1.1;color:#B45309">2</p>
+<p style="font-size:28px;font-weight:600;color:#1B2430">select()</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">Data arrives. The server reads it into this client’s buffer and cuts one line.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:32px">
+<p style="font-size:64px;font-weight:700;line-height:1.1;color:#B45309">3</p>
+<p style="font-size:28px;font-weight:600;color:#1B2430">Auction module</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">Checks the bid beats the price by 10,000 VND. In the last 30 s, resets the deadline.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:32px">
+<p style="font-size:64px;font-weight:700;line-height:1.1;color:#B45309">4</p>
+<p style="font-size:28px;font-weight:600;color:#1B2430">Send buffers</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">OK_BID goes to the bidder. EVT_NEW_BID goes to everyone in the room.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:32px">
+<p style="font-size:64px;font-weight:700;line-height:1.1;color:#B45309">5</p>
+<p style="font-size:28px;font-weight:600;color:#1B2430">Every client</p>
+<p style="font-size:24px;line-height:1.4;color:#4A5568">The network thread emits a Qt signal. The GUI shows the new price and countdown.</p>
+</div>
+</div>
+<p style="font-size:28px;line-height:1.4;color:#1B2430">All of this runs in one server thread, so two bids that arrive together are handled one after the other. No locks are needed.</p>
+<aside>Here is one bid going through the whole system. One: the user clicks Bid and the GUI sends the BID line. Two: select() sees data, the server reads it and cuts out one full line. Three: the auction module checks the rules. Four: the server queues OK_BID for the bidder and EVT_NEW_BID for every member of the room. Five: on each client the network thread receives the event and tells the GUI through a Qt signal.</aside>
+</section>
+</div>
+<div class="frame" data-n="7">
+<section class="slide" id="protocol" data-transition="fade" style="background:#E9EEF5;color:#1B2430;font-family:'Be Vietnam Pro', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#1B2430">Application protocol: OAP</h2>
+<div style="display:flex;flex-direction:row;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:40px">
+<h3 style="font-size:36px;font-weight:600;line-height:1.2;color:#1B2430">Framing</h3>
+<ul style="font-size:28px;line-height:1.4;color:#4A5568">
+<li>UTF-8 text, one message per line</li>
+<li>Fields split by |, line ends with \n</li>
+<li>At most 4096 bytes per message</li>
+<li>Escapes in a field: \\ for a backslash, \p for |, \n for a newline</li>
+<li>One recv() may hold part of a message, one message or many, so each side keeps a buffer</li>
+</ul>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<h3 style="font-size:36px;font-weight:600;line-height:1.2;color:#1B2430">Three kinds of message</h3>
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:28px;line-height:1.4;color:#1B2430"><b>Request</b>, client to server: always gets exactly one response</p>
+<p style="font-size:28px;line-height:1.4;color:#1B2430"><b>Response</b>: OK_… on success, ERR|code|message on failure</p>
+<p style="font-size:28px;line-height:1.4;color:#1B2430"><span style="color:#B45309"><b>Event</b></span>, server to client: pushed at any time, even while the client waits</p>
+</div>
+<p style="font-size:24px;line-height:1.5;font-family:'JetBrains Mono', 'Courier New', monospace;color:#F5F7FA;background:#1B2430;border-radius:12px;padding:24px">LOGIN|binh|1234<br>OK_LOGIN|binh<br>BID|1|505000<br>ERR|E_BID_TOO_LOW|Minimum bid is 510000</p>
+</div>
+</div>
+<aside>We call our protocol OAP. Every message is one line of UTF-8 text, with fields separated by a pipe. Because TCP has no message boundaries, each side keeps a receive buffer and cuts messages at the newline. There are three kinds of message. A request always gets one response. Events are pushed by the server at any time, which is why the client needs its own network thread.</aside>
+</section>
+</div>
+<div class="frame" data-n="8">
+<section class="slide" id="messages" data-transition="fade" style="background:#F5F7FA;color:#1B2430;font-family:'Be Vietnam Pro', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#1B2430">Message set</h2>
+<table style="font-size:24px;color:#1B2430;background:#FBFCFD;border:1px solid #C7CFDA">
+<tr><th style="width:18%">Group</th><th style="width:38%">Client → server</th><th style="width:44%">Server → client</th></tr>
+<tr><td>Account</td><td>REGISTER · LOGIN · LOGOUT</td><td>OK_REGISTER · OK_LOGIN · OK_LOGOUT</td></tr>
+<tr><td>Rooms</td><td>LIST_ROOMS · CREATE_ROOM · JOIN_ROOM · LEAVE_ROOM</td><td>OK_ROOMS · OK_ROOM_CREATED · OK_JOINED · OK_LEFT</td></tr>
+<tr><td>Items</td><td>ADD_ITEM · DEL_ITEM · LIST_ITEMS</td><td>OK_ITEM_ADDED · OK_ITEM_DELETED · OK_ITEMS</td></tr>
+<tr><td>Auction</td><td>START_AUCTION · BID · BUY_NOW</td><td>OK_STARTED · OK_BID · OK_BUY_NOW</td></tr>
+<tr><td>Search</td><td>SEARCH_ITEMS · HISTORY · ROOM_RESULT</td><td>OK_SEARCH · OK_HISTORY · OK_ROOM_RESULT</td></tr>
+<tr style="background:#FDF1E3"><td>Events</td><td>none, the server pushes these</td><td>EVT_ITEM_START · EVT_NEW_BID · EVT_TIME_WARNING · EVT_TIME_EXTENDED · EVT_ITEM_SOLD · EVT_ITEM_UNSOLD · EVT_AUCTION_END · EVT_USER_JOINED · EVT_USER_LEFT</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#4A5568">Errors use ERR|code|message with 18 codes, such as E_AUTH, E_BID_TOO_LOW and E_ITEM_CLOSED. Full spec: PROTOCOL.md v1.0.</p>
+<aside>This is the full message set. Requests are grouped by feature, and each one has its own OK reply. The last row is the events the server pushes by itself: a new item on the floor, a new bid, the 30-second warning, the timer extension, sold or unsold, and members joining or leaving. Every error uses the same format with a code, for example E_BID_TOO_LOW.</aside>
+</section>
+</div>
+<div class="frame" data-n="9">
+<section class="slide" id="rules" data-transition="fade" style="background:#B45309;color:#FFF8EF;font-family:'Be Vietnam Pro', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#FFF8EF">Rules the server enforces</h2>
+<div style="display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:row;gap:48px;align-items:center">
+<p style="width:600px;font-size:120px;font-weight:700;line-height:1.1;color:#FFF8EF">+10,000</p>
+<p style="flex:1;font-size:28px;line-height:1.4;color:#FFF8EF">VND, the minimum raise over the current price. The first bid must beat the start price by the same amount.</p>
+</div>
+<div style="display:flex;flex-direction:row;gap:48px;align-items:center">
+<p style="width:600px;font-size:120px;font-weight:700;line-height:1.1;color:#FFF8EF">30 s</p>
+<p style="flex:1;font-size:28px;line-height:1.4;color:#FFF8EF">left: everyone in the room gets a warning. A bid inside this window resets the clock to 30 seconds.</p>
+</div>
+<div style="display:flex;flex-direction:row;gap:48px;align-items:center">
+<p style="width:600px;font-size:120px;font-weight:700;line-height:1.1;color:#FFF8EF">1 room</p>
+<p style="flex:1;font-size:28px;line-height:1.4;color:#FFF8EF">per user at a time. Only the room owner adds items and starts the auction, and the owner cannot bid.</p>
+</div>
+</div>
+<aside>These are the rules the server checks, not the client. A bid must be at least 10,000 VND above the current price. When 30 seconds are left, the server warns everyone, and any bid in that window resets the clock to 30 seconds, so nobody can win by bidding in the last second. The server sends the number of seconds left, and each client counts down by itself, so the server does not send a message every second and a wrong clock on a client does not matter.</aside>
+</section>
+</div>
+<div class="frame" data-n="10">
+<section class="slide" id="team" data-transition="fade" style="background:#F5F7FA;color:#1B2430;font-family:'Be Vietnam Pro', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:700;line-height:1.15;color:#1B2430">Task allocation</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#B45309">Leader · Server core</p>
+<h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#1B2430">Đồng Đại Huy</h3>
+<ul style="font-size:24px;line-height:1.4;color:#4A5568">
+<li>select() loop, client buffers, framing</li>
+<li>Parser, dispatcher, broadcast</li>
+<li>Accounts and login sessions</li>
+<li>File storage, server log, search, history</li>
+<li>Keeps PROTOCOL.md and the Git repo, merges the parts</li>
+</ul>
+<div style="flex:1"></div>
+<p style="font-size:24px;line-height:1.4;color:#1B2430"><b>8 points:</b> stream, socket I/O, accounts, login, logging</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#B45309">Server business logic</p>
+<h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#1B2430">Hồ Ngọc Minh</h3>
+<ul style="font-size:24px;line-height:1.4;color:#4A5568">
+<li>Rooms: create, list, join, leave, states</li>
+<li>Room access control</li>
+<li>Items and the auction queue</li>
+<li>Auction engine: bids, buy now, 30 s timer</li>
+<li>Advanced: chat, auto-bid</li>
+</ul>
+<div style="flex:1"></div>
+<p style="font-size:24px;line-height:1.4;color:#1B2430"><b>13 points:</b> rooms, items, bidding, buy now, timer</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FBFCFD;border:1px solid #C7CFDA;border-radius:16px;padding:40px">
+<p style="font-size:24px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#B45309">Client, PySide6</p>
+<h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#1B2430">Nguyễn Việt Hòa</h3>
+<ul style="font-size:24px;line-height:1.4;color:#4A5568">
+<li>Network thread, requests, replies</li>
+<li>Login, lobby, room and owner screens</li>
+<li>Live price and countdown</li>
+<li>Showing errors and events</li>
+<li>Advanced: history charts</li>
+</ul>
+<div style="flex:1"></div>
+<p style="font-size:24px;line-height:1.4;color:#1B2430"><b>3 points</b> for the GUI, plus the client side of every feature</p>
+</div>
+</div>
+<p style="font-size:28px;line-height:1.4;color:#4A5568">Everyone tests their own module with nc, writes their part of the report and presents it.</p>
+<aside>We split the work along the architecture, so each person owns one block. I build the server core, which the others build on: the select loop, buffers, parsing, accounts and storage. Minh builds the rooms, items and the auction engine. Hòa builds the whole PySide6 client. The PROTOCOL file is our contract: any change to a message goes into that file first.</aside>
+</section>
+</div>
+<div class="frame" data-n="11">
+<section class="slide" id="progress" data-transition="fade" style="display:flex; flex-direction:column; gap:40px; padding:128px; background:#e9eef5">
+  <h2 style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.15; color:#1b2430">Progress and next steps</h2>
+  <div style="display:flex; flex-direction:row; gap:48px">
+    <div style="width:480px; display:flex; flex-direction:column; gap:20px">
+      <h3 style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:36px; font-weight:600; line-height:1.2; color:#1b2430">Done</h3>
+      <div style="display:flex; flex-direction:row; gap:16px; align-items:center">
+        <x-icon name="Check" style="width:36px; height:36px; color:#b45309"></x-icon>
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:28px; color:#1b2430">Topic and group registration</p>
+      </div>
+      <div style="display:flex; flex-direction:row; gap:16px; align-items:center">
+        <x-icon name="Check" style="width:36px; height:36px; color:#b45309"></x-icon>
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:28px; color:#1b2430">Protocol agreed, OAP v1.0</p>
+      </div>
+      <div style="display:flex; flex-direction:row; gap:16px; align-items:center">
+        <x-icon name="Check" style="width:36px; height:36px; color:#b45309"></x-icon>
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:28px; color:#1b2430">System architecture</p>
+      </div>
+      <div style="display:flex; flex-direction:row; gap:16px; align-items:center">
+        <x-icon name="Check" style="width:36px; height:36px; color:#b45309"></x-icon>
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:28px; color:#1b2430">Tools and task split</p>
+      </div>
+      <div style="display:flex; flex-direction:row; gap:16px; align-items:center">
+        <x-icon name="Check" style="width:36px; height:36px; color:#b45309"></x-icon>
+        <p style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:28px; color:#1b2430">Data model and storage</p>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; flex:1">
+      <table style="font-family:'Be Vietnam Pro', Arial, sans-serif; font-size:24px; color:#1b2430; background:#fbfcfd; border:1px solid #c7cfda">
+        <tr><th style="width:19%">When</th><th style="width:27%">Huy</th><th style="width:27%">Minh</th><th style="width:27%">Hòa</th></tr>
+        <tr><td>By 27 Oct</td><td>select(), framing, REGISTER, LOGIN</td><td>Room and item data, CREATE, LIST, JOIN</td><td>Screen skeleton, network thread, real login</td></tr>
+        <tr><td>Checkpoint 2</td><td>Storage, log, LOGOUT, lost connections</td><td>Auction engine: bids, buy now, 30 s timer</td><td>Auction room screen, one full session</td></tr>
+        <tr><td>Final</td><td>Search, history, merging, report</td><td>Advanced features</td><td>GUI polish, advanced features</td></tr>
+      </table>
+    </div>
+  </div>
+  <aside>So far we have finished the design: the topic, the protocol, now at version 1.0, the architecture, the data model, the tools and the task split. Coding starts this week. By the 27th we want a server that accepts many clients and handles register and login, with a client that can log in. By Checkpoint 2 we want one full auction session working. Two questions are still open, and we would like your advice: whether we may hash passwords with the system crypt() library, and how to support search by time slot from the topic description.</aside>
+</section>
+</div>
+</div>
+<div class="hint">← → chuyển slide · Esc thoát</div>
+<script>
+(function () {
+  var frames = Array.prototype.slice.call(document.querySelectorAll(".frame"));
+  var items = frames.map(function (f) {
+    var item = document.createElement("div");
+    item.className = "item";
+    f.parentNode.insertBefore(item, f);
+    item.appendChild(f);
+    var aside = f.querySelector("aside");
+    if (aside) {
+      var notes = document.createElement("p");
+      notes.className = "notes";
+      notes.innerHTML = "<b>Slide " + f.getAttribute("data-n") + " · ghi chú:</b> ";
+      notes.appendChild(document.createTextNode(aside.textContent.trim()));
+      item.appendChild(notes);
+    }
+    return item;
+  });
+  var current = 0;
+  function fit() {
+    frames.forEach(function (f) {
+      var s = f.querySelector("section.slide");
+      if (s) s.style.transform = "scale(" + (f.clientWidth / 1920) + ")";
+    });
+  }
+  function show(i) {
+    current = Math.max(0, Math.min(items.length - 1, i));
+    items.forEach(function (it, k) { it.classList.toggle("current", k === current); });
+    fit();
+  }
+  function present(on) {
+    document.body.classList.toggle("present", on);
+    if (on) {
+      show(current);
+      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function () {});
+    } else if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(function () {});
+    }
+    fit();
+  }
+  document.getElementById("btn-present").addEventListener("click", function () { present(true); });
+  var notesBtn = document.getElementById("btn-notes");
+  notesBtn.addEventListener("click", function () {
+    var hidden = document.body.classList.toggle("hide-notes");
+    notesBtn.setAttribute("aria-pressed", String(!hidden));
+  });
+  frames.forEach(function (f, k) { f.addEventListener("dblclick", function () { current = k; present(true); }); });
+  document.addEventListener("keydown", function (e) {
+    var on = document.body.classList.contains("present");
+    if (!on && (e.key === "f" || e.key === "F")) { present(true); return; }
+    if (!on) return;
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); show(current + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(current - 1); }
+    else if (e.key === "Home") show(0);
+    else if (e.key === "End") show(items.length - 1);
+    else if (e.key === "Escape") present(false);
+  });
+  document.addEventListener("fullscreenchange", function () {
+    if (!document.fullscreenElement && document.body.classList.contains("present")) present(false);
+  });
+  window.addEventListener("resize", fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  fit();
+})();
+</script>
+</body>
+</html>
