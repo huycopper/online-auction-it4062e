@@ -1,0 +1,9 @@
+# Mọi file text dùng LF trong repo. Sửa file trên Windows vẫn được,
+# Git tự đổi về LF khi commit, nên code build trên Linux không bị lỗi \r.
+* text=auto eol=lf
+
+*.docx binary
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.pcap binary

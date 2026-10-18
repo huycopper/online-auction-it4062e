@@ -1,0 +1,25 @@
+# Build của server
+server/build/
+server/build-asan/
+*.o
+*.d
+
+# Dữ liệu và log khi chạy thử, mỗi máy một bộ riêng
+data/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# File tạm của Office và hệ điều hành
+~$*
+.~lock.*
+Thumbs.db
+.DS_Store
+
+# Cấu hình editor riêng của từng người
+.vscode/
+.idea/
